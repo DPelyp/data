@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>API Request UI</title>
+</head>
+<body>
+    <h1>Введіть CVE ID для відправки запиту</h1>
+    <input type="text" id="cveIdInput" placeholder="Наприклад: CVE-2021-34527">
+    <button onclick="sendRequest()">Відправити</button>
+    <pre id="result"></pre>
+
+    <h1>Введіть CPE для відправки запиту</h1>
+    <input type="text" id="cpeInput" placeholder="Наприклад: cpe:2.3:o:microsoft:windows_10:1607:*:*:*:*:*:*:*">
+    <button onclick="sendRequestCpe()">Відправити</button>
+    <pre id="result_cpe"></pre>
+
+    <h2>Тестіки</h2>
+    <button onclick="runTests()">Ранити тестіки</button>
+    <pre id="test_result"></pre>
+
+    <script>
+        async function sendRequest() {
+            const cveId = document.getElementById('cveIdInput').value;
+            const resultElement = document.getElementById('result');
+            try {
+                const response = await fetch('/send_request', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ cve_id: cveId })
+                });
+                const data = await response.json();
+                resultElement.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultElement.textContent = 'Помилка: ' + error;
+            }
+        }
+
+        async function sendRequestCpe() {
+            const cpe = document.getElementById('cpeInput').value;
+            const resultElement = document.getElementById('result_cpe');
+            try {
+                const response = await fetch('/send_request_cpe', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ cpe_id: cpe })
+                });
+                const data = await response.json();
+                resultElement.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultElement.textContent = 'Помилка: ' + error;
+            }
+        }
+
+        async function runTests() {
+            const resultElement = document.getElementById('test_result');
+            try {
+                const response = await fetch('/tests');
+                const data = await response.json();
+                resultElement.textContent = 'Результати тестування: ' + JSON.stringify(data.test_result, 2);
+            } catch (error) {
+                resultElement.textContent = 'Помилка запуску тестів: ' + error;
+            }
+        }
+    </script>
+</body>
+</html>
